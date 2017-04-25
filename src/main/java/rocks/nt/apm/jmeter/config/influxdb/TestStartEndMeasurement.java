@@ -29,6 +29,11 @@ public interface TestStartEndMeasurement {
 		 * Node name field
 		 */
 		String NODE_NAME = "nodeName";
+
+		/**
+		 * Scenario name field
+		 */
+		String SCENARIO_NAME = "scenarioName";
 	}
 	
 	/**

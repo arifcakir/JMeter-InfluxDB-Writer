@@ -43,6 +43,7 @@ public class JMeterInfluxDBBackendListenerClient extends AbstractBackendListener
 	 */
 	private static final String KEY_USE_REGEX_FOR_SAMPLER_LIST = "useRegexForSamplerList";
 	private static final String KEY_TEST_NAME = "testName";
+	private static final String KEY_SCENARIO_NAME = "scenarioName";
 	private static final String KEY_NODE_NAME = "nodeName";
 	private static final String KEY_SAMPLERS_LIST = "samplersList";
 
@@ -66,6 +67,11 @@ public class JMeterInfluxDBBackendListenerClient extends AbstractBackendListener
 	 * Name of the name
 	 */
 	private String nodeName;
+
+	/**
+	 * Name of the test scenario
+	 */
+	private String scenarioName;
 
 	/**
 	 * List of samplers to record.
@@ -120,6 +126,7 @@ public class JMeterInfluxDBBackendListenerClient extends AbstractBackendListener
 	public Arguments getDefaultParameters() {
 		Arguments arguments = new Arguments();
 		arguments.addArgument(KEY_TEST_NAME, "Test");
+		arguments.addArgument(KEY_SCENARIO_NAME, "Scenario");
 		arguments.addArgument(KEY_NODE_NAME, "Test-Node");
 		arguments.addArgument(InfluxDBConfig.KEY_INFLUX_DB_HOST, "localhost");
 		arguments.addArgument(InfluxDBConfig.KEY_INFLUX_DB_PORT, Integer.toString(InfluxDBConfig.DEFAULT_PORT));
@@ -135,9 +142,9 @@ public class JMeterInfluxDBBackendListenerClient extends AbstractBackendListener
 	@Override
 	public void setupTest(BackendListenerContext context) throws Exception {
 		testName = context.getParameter(KEY_TEST_NAME, "Test");
-		randomNumberGenerator = new Random();
+		scenarioName = context.getParameter(KEY_SCENARIO_NAME, "Scenario");
 		nodeName = context.getParameter(KEY_NODE_NAME, "Test-Node");
-
+		randomNumberGenerator = new Random();
 
 		setupInfluxClient(context);
 		influxDB.write(
@@ -146,6 +153,7 @@ public class JMeterInfluxDBBackendListenerClient extends AbstractBackendListener
 				Point.measurement(TestStartEndMeasurement.MEASUREMENT_NAME).time(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
 						.tag(TestStartEndMeasurement.Tags.TYPE, TestStartEndMeasurement.Values.STARTED)
 						.tag(TestStartEndMeasurement.Tags.NODE_NAME, nodeName)
+						.tag(TestStartEndMeasurement.Tags.SCENARIO_NAME, scenarioName)
 						.addField(TestStartEndMeasurement.Fields.TEST_NAME, testName)
 						.build());
 
@@ -167,6 +175,7 @@ public class JMeterInfluxDBBackendListenerClient extends AbstractBackendListener
 				Point.measurement(TestStartEndMeasurement.MEASUREMENT_NAME).time(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
 						.tag(TestStartEndMeasurement.Tags.TYPE, TestStartEndMeasurement.Values.FINISHED)
 						.tag(TestStartEndMeasurement.Tags.NODE_NAME, nodeName)
+						.tag(TestStartEndMeasurement.Tags.SCENARIO_NAME, scenarioName)
 						.addField(TestStartEndMeasurement.Fields.TEST_NAME, testName)
 						.build());
 
@@ -239,6 +248,7 @@ public class JMeterInfluxDBBackendListenerClient extends AbstractBackendListener
 		builder.addField(VirtualUsersMeasurement.Fields.STARTED_THREADS, startedThreads);
 		builder.addField(VirtualUsersMeasurement.Fields.FINISHED_THREADS, finishedThreads);
 		builder.tag(VirtualUsersMeasurement.Tags.NODE_NAME, nodeName);
+		builder.tag(VirtualUsersMeasurement.Tags.SCENARIO_NAME, scenarioName);
 		influxDB.write(influxDBConfig.getInfluxDatabase(), influxDBConfig.getInfluxRetentionPolicy(), builder.build());
 	}
 
