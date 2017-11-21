@@ -39,6 +39,11 @@ public interface RequestMeasurement {
 		String RESPONSE_TIME = "responseTime";
 
 		/**
+		 * Response code field.
+		 */
+		String RESPONSE_CODE = "responseCode";
+
+		/**
 		 * Error count field.
 		 */
 		String ERROR_COUNT = "errorCount";

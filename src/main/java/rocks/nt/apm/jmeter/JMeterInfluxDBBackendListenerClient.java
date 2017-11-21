@@ -116,7 +116,8 @@ public class JMeterInfluxDBBackendListenerClient extends AbstractBackendListener
 						.addField(RequestMeasurement.Fields.THREAD_NAME, sampleResult.getThreadName())
 						.addField(RequestMeasurement.Fields.TEST_NAME, testName)
 						.addField(RequestMeasurement.Fields.NODE_NAME, nodeName)
-						.addField(RequestMeasurement.Fields.RESPONSE_TIME, sampleResult.getTime()).build();
+						.addField(RequestMeasurement.Fields.RESPONSE_TIME, sampleResult.getTime())
+						.addField(RequestMeasurement.Fields.RESPONSE_CODE, sampleResult.getResponseCode()).build();
 				influxDB.write(influxDBConfig.getInfluxDatabase(), influxDBConfig.getInfluxRetentionPolicy(), point);
 			}
 		}
