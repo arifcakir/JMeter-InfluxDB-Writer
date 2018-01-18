@@ -23,7 +23,17 @@ public interface RequestMeasurement {
 		/**
 		 * Request name tag.
 		 */
-		String REQUEST_NAME = "requestName";
+    String REQUEST_NAME = "requestName";
+
+		/**
+		 * Scenario name tag.
+		 */
+    String SCENARIO_NAME = "scenarioName";
+
+		/**
+		 * Response code field.
+		 */
+		String RESPONSE_CODE = "responseCode";
 	}
 
 	/**
@@ -37,11 +47,6 @@ public interface RequestMeasurement {
 		 * Response time field.
 		 */
 		String RESPONSE_TIME = "responseTime";
-
-		/**
-		 * Response code field.
-		 */
-		String RESPONSE_CODE = "responseCode";
 
 		/**
 		 * Error count field.
