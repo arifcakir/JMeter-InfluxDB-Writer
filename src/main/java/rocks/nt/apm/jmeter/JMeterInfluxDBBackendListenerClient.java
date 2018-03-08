@@ -9,6 +9,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.jmeter.config.Arguments;
+import org.apache.jmeter.assertions.AssertionResult;
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.threads.JMeterContextService;
 import org.apache.jmeter.threads.JMeterContextService.ThreadCounts;
@@ -111,14 +112,31 @@ public class JMeterInfluxDBBackendListenerClient extends AbstractBackendListener
 			getUserMetrics().add(sampleResult);
 
 			if ((null != regexForSamplerList && sampleResult.getSampleLabel().matches(regexForSamplerList)) || samplersToFilter.contains(sampleResult.getSampleLabel())) {
+        String assertionMsg = "";
+        String responseMsg = sampleResult.getResponseMessage();
+
+        if (!sampleResult.isSuccessful()) {
+          AssertionResult[] assertionResults = sampleResult.getAssertionResults();
+
+          for (int i = 0; i < assertionResults.length; ++i) {
+            AssertionResult ar = assertionResults[i];
+            if (ar.isError() || ar.isFailure()) {
+              assertionMsg += ar.getFailureMessage();
+            }
+          } 
+        }
+
 				Point point = Point.measurement(RequestMeasurement.MEASUREMENT_NAME).time(System.currentTimeMillis() * ONE_MS_IN_NANOSECONDS + getUniqueNumberForTheSamplerThread(), TimeUnit.NANOSECONDS)
-						.tag(RequestMeasurement.Tags.REQUEST_NAME, sampleResult.getSampleLabel()).addField(RequestMeasurement.Fields.ERROR_COUNT, sampleResult.getErrorCount())
+            .tag(RequestMeasurement.Tags.REQUEST_NAME, sampleResult.getSampleLabel())
+            .addField(RequestMeasurement.Fields.ERROR_COUNT, sampleResult.getErrorCount())
 						.tag(RequestMeasurement.Fields.TEST_NAME, testName)
 						.tag(RequestMeasurement.Tags.SCENARIO_NAME, scenarioName)
 						.tag(RequestMeasurement.Fields.NODE_NAME, nodeName)
-						.tag(RequestMeasurement.Tags.RESPONSE_CODE, sampleResult.getResponseCode())
+            .tag(RequestMeasurement.Tags.RESPONSE_CODE, sampleResult.getResponseCode())
+						.tag(RequestMeasurement.Tags.RESPONSE_MESSAGE, responseMsg.equals("") ? "NULL" : responseMsg)
+						.tag(RequestMeasurement.Tags.FAILURE_MESSAGE, assertionMsg.equals("") ? "NULL" : assertionMsg)
 						.addField(RequestMeasurement.Fields.THREAD_NAME, sampleResult.getThreadName())
-						.addField(RequestMeasurement.Fields.RESPONSE_TIME, sampleResult.getTime()).build();
+            .addField(RequestMeasurement.Fields.RESPONSE_TIME, sampleResult.getTime()).build();
 				influxDB.write(influxDBConfig.getInfluxDatabase(), influxDBConfig.getInfluxRetentionPolicy(), point);
 			}
 		}

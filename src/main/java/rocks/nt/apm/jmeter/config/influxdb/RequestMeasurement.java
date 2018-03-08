@@ -33,7 +33,17 @@ public interface RequestMeasurement {
 		/**
 		 * Response code field.
 		 */
-		String RESPONSE_CODE = "responseCode";
+    String RESPONSE_CODE = "responseCode";
+
+		/**
+		 * Response message field.
+		 */
+    String RESPONSE_MESSAGE = "responseMessage";
+    
+    /**
+     * Failure message
+     */
+    String FAILURE_MESSAGE = "failureMessage";
 	}
 
 	/**
@@ -46,7 +56,7 @@ public interface RequestMeasurement {
 		/**
 		 * Response time field.
 		 */
-		String RESPONSE_TIME = "responseTime";
+    String RESPONSE_TIME = "responseTime";
 
 		/**
 		 * Error count field.
