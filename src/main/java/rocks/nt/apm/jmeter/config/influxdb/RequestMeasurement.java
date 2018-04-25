@@ -76,6 +76,26 @@ public interface RequestMeasurement {
 		/**
 		 * Node name field
 		 */
-		String NODE_NAME = "nodeName";
-	}
+    String NODE_NAME = "nodeName";
+
+		/**
+		 * Request data field.
+		 */
+    String REQUEST_DATA = "requestData";
+    
+    /**
+     * Response data field
+     */
+    String RESPONSE_DATA = "responseData";
+
+    /**
+     * Request headers field
+     */
+    String REQUEST_HEADERS = "requestHeaders";
+
+    /**
+     * Response headers field
+     */
+    String RESPONSE_HEADERS = "responseHeaders";
+  }
 }

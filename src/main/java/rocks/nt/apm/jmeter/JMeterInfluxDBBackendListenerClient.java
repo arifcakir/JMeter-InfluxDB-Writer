@@ -114,9 +114,17 @@ public class JMeterInfluxDBBackendListenerClient extends AbstractBackendListener
 			if ((null != regexForSamplerList && sampleResult.getSampleLabel().matches(regexForSamplerList)) || samplersToFilter.contains(sampleResult.getSampleLabel())) {
         String assertionMsg = "";
         String responseMsg = sampleResult.getResponseMessage();
+        String requestData = "";
+        String responseData = "";
+        String requestHeaders = "";
+        String responseHeaders = "";
 
         if (!sampleResult.isSuccessful()) {
           AssertionResult[] assertionResults = sampleResult.getAssertionResults();
+          responseData = sampleResult.getResponseDataAsString();
+          requestData = sampleResult.getSamplerData();
+          requestHeaders = sampleResult.getRequestHeaders();
+          responseHeaders = sampleResult.getResponseHeaders();
 
           for (int i = 0; i < assertionResults.length; ++i) {
             AssertionResult ar = assertionResults[i];
@@ -136,7 +144,12 @@ public class JMeterInfluxDBBackendListenerClient extends AbstractBackendListener
 						.tag(RequestMeasurement.Tags.RESPONSE_MESSAGE, responseMsg.equals("") ? "NULL" : responseMsg)
 						.tag(RequestMeasurement.Tags.FAILURE_MESSAGE, assertionMsg.equals("") ? "NULL" : assertionMsg)
 						.addField(RequestMeasurement.Fields.THREAD_NAME, sampleResult.getThreadName())
-            .addField(RequestMeasurement.Fields.RESPONSE_TIME, sampleResult.getTime()).build();
+            .addField(RequestMeasurement.Fields.RESPONSE_TIME, sampleResult.getTime())
+            .addField(RequestMeasurement.Fields.REQUEST_DATA, requestData)
+            .addField(RequestMeasurement.Fields.RESPONSE_DATA, responseData)
+            .addField(RequestMeasurement.Fields.REQUEST_HEADERS, requestHeaders)
+            .addField(RequestMeasurement.Fields.RESPONSE_HEADERS, responseHeaders)
+            .build();
 				influxDB.write(influxDBConfig.getInfluxDatabase(), influxDBConfig.getInfluxRetentionPolicy(), point);
 			}
 		}
