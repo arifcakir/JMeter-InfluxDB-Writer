@@ -97,5 +97,10 @@ public interface RequestMeasurement {
      * Response headers field
      */
     String RESPONSE_HEADERS = "responseHeaders";
+
+    /**
+     * Sequential Index
+     */
+    String SEQUENTIAL_INDEX = "sequentialIndex";
   }
 }
