@@ -102,12 +102,7 @@ public class JMeterInfluxDBBackendListenerClient extends AbstractBackendListener
 	/**
 	 * Random number generator
 	 */
-  private Random randomNumberGenerator;
-  
-  /**
-   * Sequential index
-   */
-  private long SequentialIndex = 0;
+	private Random randomNumberGenerator;
 
 	/**
 	 * Processes sampler results.
@@ -154,7 +149,6 @@ public class JMeterInfluxDBBackendListenerClient extends AbstractBackendListener
             .addField(RequestMeasurement.Fields.RESPONSE_DATA, responseData)
             .addField(RequestMeasurement.Fields.REQUEST_HEADERS, requestHeaders)
             .addField(RequestMeasurement.Fields.RESPONSE_HEADERS, responseHeaders)
-            .addField(RequestMeasurement.Fields.SEQUENTIAL_INDEX, SequentialIndex++)
             .build();
 				influxDB.write(influxDBConfig.getInfluxDatabase(), influxDBConfig.getInfluxRetentionPolicy(), point);
 			}
