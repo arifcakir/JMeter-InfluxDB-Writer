@@ -134,7 +134,7 @@ public class JMeterInfluxDBBackendListenerClient extends AbstractBackendListener
           } 
         }
 
-				Point point = Point.measurement(RequestMeasurement.MEASUREMENT_NAME).time(System.currentTimeMillis() * ONE_MS_IN_NANOSECONDS + getUniqueNumberForTheSamplerThread(), TimeUnit.NANOSECONDS)
+				Point point = Point.measurement(RequestMeasurement.MEASUREMENT_NAME).time(sampleResult.getStartTime() * ONE_MS_IN_NANOSECONDS + getUniqueNumberForTheSamplerThread(), TimeUnit.NANOSECONDS)
             .tag(RequestMeasurement.Tags.REQUEST_NAME, sampleResult.getSampleLabel())
             .addField(RequestMeasurement.Fields.ERROR_COUNT, sampleResult.getErrorCount())
 						.tag(RequestMeasurement.Fields.TEST_NAME, testName)
