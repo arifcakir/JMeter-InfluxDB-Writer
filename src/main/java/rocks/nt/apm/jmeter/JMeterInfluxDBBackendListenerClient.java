@@ -102,7 +102,12 @@ public class JMeterInfluxDBBackendListenerClient extends AbstractBackendListener
 	/**
 	 * Random number generator
 	 */
-	private Random randomNumberGenerator;
+  private Random randomNumberGenerator;
+  
+  /**
+   * Current epoch time in seconds
+   */
+  private long currentEpochTimeInSeconds;
 
 	/**
 	 * Processes sampler results.
@@ -274,7 +279,13 @@ public class JMeterInfluxDBBackendListenerClient extends AbstractBackendListener
 	 * Write thread metrics.
 	 */
 	private void addVirtualUsersMetrics(int minActiveThreads, int meanActiveThreads, int maxActiveThreads, int startedThreads, int finishedThreads) {
-		Builder builder = Point.measurement(VirtualUsersMeasurement.MEASUREMENT_NAME).time(System.currentTimeMillis(), TimeUnit.MILLISECONDS);
+    if (currentEpochTimeInSeconds == 0) {
+      currentEpochTimeInSeconds = System.currentTimeMillis() / 1000L;
+    } else {
+      currentEpochTimeInSeconds++;
+    }
+
+		Builder builder = Point.measurement(VirtualUsersMeasurement.MEASUREMENT_NAME).time(currentEpochTimeInSeconds, TimeUnit.SECONDS);
 		builder.addField(VirtualUsersMeasurement.Fields.MIN_ACTIVE_THREADS, minActiveThreads);
 		builder.addField(VirtualUsersMeasurement.Fields.MAX_ACTIVE_THREADS, maxActiveThreads);
 		builder.addField(VirtualUsersMeasurement.Fields.MEAN_ACTIVE_THREADS, meanActiveThreads);
