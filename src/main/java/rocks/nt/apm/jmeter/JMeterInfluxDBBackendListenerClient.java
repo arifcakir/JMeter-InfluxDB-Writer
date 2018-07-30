@@ -114,7 +114,7 @@ public class JMeterInfluxDBBackendListenerClient extends AbstractBackendListener
    * Processes sampler results.
    */
   public void handleSampleResults(List<SampleResult> sampleResults, BackendListenerContext context) {
-    boolean logErrorDetails = context.getBooleanParameter(KEY_LOG_ERROR_DETAILS, false);
+    boolean logErrorDetails = context.getBooleanParameter(KEY_LOG_ERROR_DETAILS, true);
 
     for (SampleResult sampleResult : sampleResults) {
       getUserMetrics().add(sampleResult);
@@ -256,7 +256,8 @@ public class JMeterInfluxDBBackendListenerClient extends AbstractBackendListener
   private void setupInfluxClient(BackendListenerContext context) {
     influxDBConfig = new InfluxDBConfig(context);
     influxDB = InfluxDBFactory.connect(influxDBConfig.getInfluxDBURL(), influxDBConfig.getInfluxUser(), influxDBConfig.getInfluxPassword());
-    influxDB.enableBatch(100, 5, TimeUnit.SECONDS);
+    influxDB.setRetentionPolicy("defaultPolicy");
+    influxDB.enableBatch(1000, 5, TimeUnit.SECONDS);
     createDatabaseIfNotExistent();
   }
 
