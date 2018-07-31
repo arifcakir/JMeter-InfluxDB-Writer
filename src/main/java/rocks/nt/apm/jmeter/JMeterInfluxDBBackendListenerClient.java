@@ -21,6 +21,7 @@ import org.influxdb.InfluxDB;
 import org.influxdb.InfluxDBFactory;
 import org.influxdb.dto.Point;
 import org.influxdb.dto.Point.Builder;
+import org.influxdb.BatchOptions;
 
 import rocks.nt.apm.jmeter.config.influxdb.InfluxDBConfig;
 import rocks.nt.apm.jmeter.config.influxdb.RequestMeasurement;
@@ -257,7 +258,20 @@ public class JMeterInfluxDBBackendListenerClient extends AbstractBackendListener
     influxDBConfig = new InfluxDBConfig(context);
     influxDB = InfluxDBFactory.connect(influxDBConfig.getInfluxDBURL(), influxDBConfig.getInfluxUser(), influxDBConfig.getInfluxPassword());
     influxDB.setRetentionPolicy("defaultPolicy");
-    influxDB.enableBatch(1000, 5, TimeUnit.SECONDS);
+
+    influxDB.enableBatch(
+      BatchOptions.DEFAULTS.
+        actions(1000).
+        flushDuration(5000).
+        jitterDuration(1000).
+        bufferLimit(50000).
+        exceptionHandler(
+          (failedPoints, throwable) -> {
+            /* custom error handling for async batch sending process */
+            LOGGER.error("Async batch write failed for points, it will be retried later"); 
+          }
+        )
+    );
     createDatabaseIfNotExistent();
   }
 
