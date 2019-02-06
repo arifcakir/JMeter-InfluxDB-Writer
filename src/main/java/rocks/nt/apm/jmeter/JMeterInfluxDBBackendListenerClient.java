@@ -131,10 +131,27 @@ public class JMeterInfluxDBBackendListenerClient extends AbstractBackendListener
         if (logErrorDetails) {
           if (!sampleResult.isSuccessful()) {
             AssertionResult[] assertionResults = sampleResult.getAssertionResults();
-            responseData = sampleResult.getResponseDataAsString();
+
             requestData = sampleResult.getSamplerData();
+            responseData = sampleResult.getResponseDataAsString();
             requestHeaders = sampleResult.getRequestHeaders();
             responseHeaders = sampleResult.getResponseHeaders();
+
+            if (requestData == null) {
+              requestData = "requestData is null";
+            }
+
+            if (responseData == null) {
+              responseData = "responseData is null";
+            }
+
+            if (requestHeaders == null) {
+              requestHeaders = "requestHeaders is null";
+            }
+
+            if (responseHeaders == null) {
+              responseHeaders = "responseHeaders is null";
+            }
 
             for (int i = 0; i < assertionResults.length; ++i) {
               AssertionResult ar = assertionResults[i];
