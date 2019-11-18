@@ -2,14 +2,13 @@ package rocks.nt.apm.jmeter;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-
-import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.assertions.AssertionResult;
+import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.threads.JMeterContextService;
 import org.apache.jmeter.threads.JMeterContextService.ThreadCounts;
@@ -17,16 +16,17 @@ import org.apache.jmeter.visualizers.backend.AbstractBackendListenerClient;
 import org.apache.jmeter.visualizers.backend.BackendListenerContext;
 import org.apache.jorphan.logging.LoggingManager;
 import org.apache.log.Logger;
+import org.influxdb.BatchOptions;
 import org.influxdb.InfluxDB;
 import org.influxdb.InfluxDBFactory;
 import org.influxdb.dto.Point;
 import org.influxdb.dto.Point.Builder;
-import org.influxdb.BatchOptions;
-
 import rocks.nt.apm.jmeter.config.influxdb.InfluxDBConfig;
 import rocks.nt.apm.jmeter.config.influxdb.RequestMeasurement;
 import rocks.nt.apm.jmeter.config.influxdb.TestStartEndMeasurement;
 import rocks.nt.apm.jmeter.config.influxdb.VirtualUsersMeasurement;
+
+
 
 /**
  * Backend listener that writes JMeter metrics to influxDB directly.
@@ -230,7 +230,9 @@ public class JMeterInfluxDBBackendListenerClient extends AbstractBackendListener
     LOGGER.info("Shutting down influxDB scheduler...");
     scheduler.shutdown();
 
-    addVirtualUsersMetrics(0,0,0,0,JMeterContextService.getThreadCounts().finishedThreads);
+    int noOfTotalThreads = JMeterContextService.getTotalThreads();
+
+    addVirtualUsersMetrics(0,0,0,0,noOfTotalThreads);
     influxDB.write(
         influxDBConfig.getInfluxDatabase(),
         influxDBConfig.getInfluxRetentionPolicy(),
@@ -256,10 +258,14 @@ public class JMeterInfluxDBBackendListenerClient extends AbstractBackendListener
   /**
    * Periodically writes virtual users metrics to influxDB.
    */
+  @Override
   public void run() {
     try {
+      int noOfThreads = JMeterContextService.getNumberOfThreads();
+      int noOfTotalThreads = JMeterContextService.getTotalThreads();
+
       ThreadCounts tc = JMeterContextService.getThreadCounts();
-      addVirtualUsersMetrics(getUserMetrics().getMinActiveThreads(), getUserMetrics().getMeanActiveThreads(), getUserMetrics().getMaxActiveThreads(), tc.startedThreads, tc.finishedThreads);
+      addVirtualUsersMetrics(getUserMetrics().getMinActiveThreads(), getUserMetrics().getMeanActiveThreads(), getUserMetrics().getMaxActiveThreads(), noOfThreads, noOfTotalThreads - noOfThreads);
     } catch (Exception e) {
       LOGGER.error("Failed writing to influx", e);
     }
